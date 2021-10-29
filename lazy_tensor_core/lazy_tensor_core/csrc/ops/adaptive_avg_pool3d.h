@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "lazy_tensor_core/csrc/ts_backend/TsNode.h"
-#include "lazy_tensors/primitive_types.h"
 
 namespace torch_lazy_tensors {
 namespace ir {

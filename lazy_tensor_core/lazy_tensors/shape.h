@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "lazy_tensor_core/csrc/device.h"
-#include "lazy_tensors/layout.h"
 #include "lazy_tensors/str_cat.h"
 #include "lazy_tensors/str_join.h"
 

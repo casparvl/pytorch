@@ -13,12 +13,12 @@ class NodeLowering;
 
 namespace ts_backend {
 
-class GenericComputationTS : public lazy_tensors::GenericComputation {
+class GenericComputationTS : public GenericComputation {
  public:
   GenericComputationTS(std::shared_ptr<torch::jit::Graph> graph)
       : graph_executor_(std::move(graph), "") {}
 
-  lazy_tensors::StatusOr<lazy_tensors::ProgramShape> GetProgramShape()
+  lazy_tensors::StatusOr<ProgramShape> GetProgramShape()
       const override {
     std::vector<std::string> parameter_names;
     for (torch::jit::Value* input : graph_executor_.graph()->inputs()) {
@@ -28,7 +28,7 @@ class GenericComputationTS : public lazy_tensors::GenericComputation {
     // layout. This backend doesn't use it for anything, so it's ok to leave it
     // empty.
     std::vector<lazy_tensors::Shape> parameters(parameter_names.size());
-    return lazy_tensors::ProgramShape(parameters, parameter_names,
+    return ProgramShape(parameters, parameter_names,
                                       lazy_tensors::Shape());
   }
 
@@ -52,7 +52,7 @@ class TSLoweringContext : public ir::LoweringContext {
 
   size_t AddResult(const torch::lazy::Output& output) override;
 
-  lazy_tensors::StatusOr<std::shared_ptr<lazy_tensors::GenericComputation>>
+  lazy_tensors::StatusOr<std::shared_ptr<GenericComputation>>
   Build() override;
 
   // Retrieves the lowered operation for a output. If the requested output is
@@ -69,7 +69,7 @@ class TSLoweringContext : public ir::LoweringContext {
   // returned. Otherwise a new one will be created, associated with the tensor
   // held in data.
   torch::jit::Value* GetParameter(
-      const std::shared_ptr<lazy_tensors::client::Data>& data);
+      const std::shared_ptr<Data>& data);
 
   std::shared_ptr<torch::jit::Graph> graph() const { return graph_; }
 
@@ -82,7 +82,7 @@ class TSLoweringContext : public ir::LoweringContext {
   size_t AddResult(torch::jit::Value* op);
 
   std::shared_ptr<torch::jit::Graph> graph_;
-  std::unordered_map<lazy_tensors::client::Data::OpaqueHandle, Parameter>
+  std::unordered_map<Data::OpaqueHandle, Parameter>
       parameters_map_;
   std::vector<torch::jit::Value*> root_tuple_;
   torch::lazy::OutputMap<torch::jit::Value*> emitted_outputs_;
