@@ -16,20 +16,24 @@ namespace ts_backend {
 class GenericComputationTS : public GenericComputation {
  public:
   GenericComputationTS(std::shared_ptr<torch::jit::Graph> graph)
-      : graph_executor_(std::move(graph), "") {}
+      : graph_executor_(std::move(graph), "") {
+        for (torch::jit::Value* input : graph_executor_.graph()->inputs()) {
+          parameter_names_.push_back(input->debugName());
+        }
+      }
 
-  lazy_tensors::StatusOr<ProgramShape> GetProgramShape()
-      const override {
-    std::vector<std::string> parameter_names;
-    for (torch::jit::Value* input : graph_executor_.graph()->inputs()) {
-      parameter_names.push_back(input->debugName());
-    }
-    // NB: The return type is only used by certain backends to assing a physical
-    // layout. This backend doesn't use it for anything, so it's ok to leave it
-    // empty.
-    std::vector<lazy_tensors::Shape> parameters(parameter_names.size());
-    return ProgramShape(parameters, parameter_names,
-                                      lazy_tensors::Shape());
+  int parameters_size() const override { return parameter_names_.size(); }
+
+  const std::vector<lazy_tensors::Shape>& parameter_shapes() const override {
+    throw std::runtime_error("TODO(whc) implement TS computation shapes or change interface");
+    return parameter_shapes_;
+  }
+
+  const std::vector<std::string>& parameter_names() const override { return parameter_names_; }
+
+  const lazy_tensors::Shape& result_shape() const override {
+    throw std::runtime_error("TODO(whc) implement TS computation shapes or change interface");
+    return result_shape_;
   }
 
   std::shared_ptr<torch::jit::Graph> graph() const { return graph_executor_.graph(); }
@@ -38,6 +42,9 @@ class GenericComputationTS : public GenericComputation {
 
  private:
   torch::jit::GraphExecutor graph_executor_;
+  std::vector<std::string> parameter_names_;
+  std::vector<lazy_tensors::Shape> parameter_shapes_;
+  lazy_tensors::Shape result_shape_;
 };
 
 class TSLoweringContext : public ir::LoweringContext {
