@@ -22,13 +22,4 @@ bool IsPermutation(c10::ArrayRef<int64_t> permutation) {
                              trivial_permutation.begin());
 }
 
-bool IsIdentityPermutation(c10::ArrayRef<int64_t> permutation) {
-  for (int64_t i = 0; i < permutation.size(); ++i) {
-    if (permutation[i] != i) {
-      return false;
-    }
-  }
-  return true;
-}
-
 }  // namespace lazy_tensors
