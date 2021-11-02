@@ -1638,7 +1638,10 @@ class TestLinalg(TestCase):
         a = torch.eye(3, dtype=dtype, device=device)
         a[-1, -1] = 0  # make 'a' singular
         for p in norm_types:
-            run_test_case(a, p)
+            # Numpy behaviour on singular inputs is LAPACK implementation dependent.
+            # It fails with OpenBLAS 0.3.15 if p is 'nuc'. See https://github.com/pytorch/pytorch/issues/67675
+            if p != 'nuc':
+                run_test_case(a, p)
 
         # test for 0x0 matrices. NumPy doesn't work for such input, we return 0
         input_sizes = [(0, 0), (2, 5, 0, 0)]
