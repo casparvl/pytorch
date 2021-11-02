@@ -65,7 +65,7 @@ std::vector<std::vector<int64_t>> compute_shape_index_select(const at::Tensor & 
     const at::Tensor & index) {
   // Based on definition of https://pytorch.org/docs/stable/generated/torch.index_select.html.
   // Promote Rank 0 index tensor to a 1 * 1 tensor.
-  dim = at::maybe_wrap_dim(dim, self);
+  dim = at::maybe_wrap_dim(dim, self.dim());
   auto index_dim = index.dim() > 0 ? index.dim() : 1;
   auto index_size = index.dim() > 0 ? index.size(0) : 1;
   TORCH_CHECK(index_dim == 1);
@@ -95,7 +95,7 @@ std::vector<std::vector<int64_t>> compute_shape_cat(at::TensorList tensors, int6
   // TODO(whc) support cat in codegen and move this to compute_*_cat functions
   std::vector<int64_t> out_shape(tensors[0].sizes().begin(), tensors[0].sizes().end());
 
-  dim = at::maybe_wrap_dim(dim, tensors);
+  dim = at::maybe_wrap_dim(dim, tensors.size());
   size_t extended_dim_shape = 0;
   for (auto& tensor: tensors) {
     extended_dim_shape += tensor.sizes()[dim];
